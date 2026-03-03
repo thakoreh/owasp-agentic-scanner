@@ -1,0 +1,24 @@
+# CODEOWNERS - Define who reviews what
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @NP-compete
+
+# Core scanner engine
+/src/owasp_agentic_scanner/scanner.py @NP-compete
+/src/owasp_agentic_scanner/ast_analyzer.py @NP-compete
+
+# Security rules - critical for security scanner
+/src/owasp_agentic_scanner/rules/ @NP-compete
+
+# CI/CD and workflows
+/.github/workflows/ @NP-compete
+
+# Documentation
+/docs/ @NP-compete
+README.md @NP-compete
+CONTRIBUTING.md @NP-compete
+
+# Configuration
+pyproject.toml @NP-compete
+.pre-commit-config.yaml @NP-compete

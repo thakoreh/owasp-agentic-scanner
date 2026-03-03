@@ -6,21 +6,21 @@ Thank you for your interest in contributing!
 
 ### 1. Fork the Repository
 
-1. Go to [https://github.com/NP-compete/owasp-agentic-ai-security-scanner](https://github.com/NP-compete/owasp-agentic-ai-security-scanner)
+1. Go to [https://github.com/NP-compete/owasp-agentic-scanner](https://github.com/NP-compete/owasp-agentic-scanner)
 2. Click the "Fork" button in the top right
 3. This creates a copy in your GitHub account
 
 ### 2. Clone Your Fork
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/owasp-agentic-ai-security-scanner.git
-cd owasp-agentic-ai-security-scanner
+git clone https://github.com/YOUR-USERNAME/owasp-agentic-scanner.git
+cd owasp-agentic-scanner
 ```
 
 ### 3. Add Upstream Remote
 
 ```bash
-git remote add upstream https://github.com/NP-compete/owasp-agentic-ai-security-scanner.git
+git remote add upstream https://github.com/NP-compete/owasp-agentic-scanner.git
 git remote -v  # Verify you have both origin (your fork) and upstream (original repo)
 ```
 
