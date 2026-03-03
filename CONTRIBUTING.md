@@ -1,100 +1,41 @@
-# Contributing to OWASP Agentic AI Scanner
+# Contributing
 
-Thank you for your interest in contributing!
-
-## Getting Started
-
-### 1. Fork the Repository
-
-1. Go to [https://github.com/NP-compete/owasp-agentic-scanner](https://github.com/NP-compete/owasp-agentic-scanner)
-2. Click the "Fork" button in the top right
-3. This creates a copy in your GitHub account
-
-### 2. Clone Your Fork
+## Development Setup
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/owasp-agentic-scanner.git
+git clone https://github.com/NP-compete/owasp-agentic-scanner.git
 cd owasp-agentic-scanner
-```
-
-### 3. Add Upstream Remote
-
-```bash
-git remote add upstream https://github.com/NP-compete/owasp-agentic-scanner.git
-git remote -v  # Verify you have both origin (your fork) and upstream (original repo)
-```
-
-### 4. Install Development Dependencies
-
-```bash
 make install-dev
 ```
 
-## Development Workflow
-
-### 1. Sync Your Fork
-
-Before creating a new branch, sync with the latest changes:
+## Running Checks
 
 ```bash
-git checkout main
-git fetch upstream
-git merge upstream/main
-git push origin main  # Update your fork
+make pre-commit  # Run all checks (lint, format, test)
+make test        # Run tests only
+make lint        # Run linting only
 ```
 
-### 2. Create a Feature Branch
+## Workflow
 
-```bash
-git checkout -b feature/your-feature-name
-```
-
-### 3. Make Your Changes
-
-- Write code following our code standards (see below)
-- Add tests for new features
-- Update documentation if needed
-
-### 4. Run Checks
-
-```bash
-make pre-commit  # Runs linting, formatting, and tests
-```
-
-### 5. Commit Your Changes
-
-```bash
-git add .
-git commit -m "feat: Add your feature description"
-```
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `test:` - Test changes
-- `refactor:` - Code refactoring
-
-### 6. Push to Your Fork
-
-```bash
-git push origin feature/your-feature-name
-```
-
-### 7. Submit a Pull Request
-
-1. Go to your fork on GitHub
-2. Click "Pull Request" button
-3. Select your feature branch
-4. Fill out the PR template
-5. Submit the PR
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make changes and add tests
+4. Run checks: `make pre-commit`
+5. Commit using [Conventional Commits](https://www.conventionalcommits.org/):
+   - `feat:` - New feature
+   - `fix:` - Bug fix
+   - `docs:` - Documentation
+   - `test:` - Tests
+   - `refactor:` - Refactoring
+6. Push and open a Pull Request
 
 ## Code Standards
 
 - Python 3.11+
 - Type hints required
 - Ruff for linting/formatting
-- 85% test coverage minimum
+- 80% test coverage minimum
 
 ## Adding a New Rule
 
@@ -125,12 +66,12 @@ class YourRule(BaseRule):
         ]
 ```
 
-## PR Requirements
+## PR Checklist
 
-- [ ] All checks pass (`make pre-commit`)
+- [ ] `make pre-commit` passes
 - [ ] Tests added for new features
 - [ ] Documentation updated if needed
 
-## Questions?
+## Questions
 
-Open an issue or discussion.
+Open an issue or start a discussion.
