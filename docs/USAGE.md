@@ -54,7 +54,7 @@ Suppress specific findings in your code:
 eval(expression)  # noqa: AA05
 
 # Suppress all rules on a line
-exec(code)  # noqa: owasp-scan
+exec(code)  # noqa: ALL
 
 # Suppress multiple rules
 dangerous_call()  # noqa: AA02,AA05
