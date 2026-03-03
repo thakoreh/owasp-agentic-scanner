@@ -146,7 +146,7 @@ class TestBaselineIntegration:
 
         # Filter - fuzzy matching should still match
         baseline2 = Baseline(baseline_file)
-        new_findings, baselined = baseline2.filter_new_findings(findings2)
+        _new_findings, baselined = baseline2.filter_new_findings(findings2)
 
         # Should still be baselined despite line number shift
         assert len(baselined) > 0
@@ -216,7 +216,7 @@ class TestMultiModuleIntegration:
 
         # Filter with baseline
         baseline2 = Baseline(baseline_file)
-        new_findings, baselined = baseline2.filter_new_findings(findings2)
+        new_findings, _baselined = baseline2.filter_new_findings(findings2)
 
         # test.py should be cached and baselined
         # test2.py should be new

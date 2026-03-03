@@ -238,7 +238,7 @@ class ScanConfig:
         """Save configuration to TOML file."""
         try:
             # We need tomli_w for writing
-            import tomli_w  # type: ignore[import-not-found]
+            import tomli_w
 
             with open(file_path, "wb") as f:
                 tomli_w.dump(self.to_dict(), f)

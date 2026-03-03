@@ -324,7 +324,7 @@ class OptimizedScanner:
             findings: List of findings from the batch
             cache: Cache instance to update
         """
-        from filelock import FileLock, Timeout  # type: ignore[import-not-found]
+        from filelock import FileLock, Timeout
 
         from owasp_agentic_scanner.constants import CACHE_LOCK_TIMEOUT_SECONDS
 

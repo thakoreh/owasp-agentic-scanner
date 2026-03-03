@@ -174,7 +174,7 @@ result = func(user_input)
 
         # Note: Current implementation may not catch this advanced case
         # This test documents a limitation
-        findings = ASTSecurityChecker.check_dangerous_functions(test_file)
+        ASTSecurityChecker.check_dangerous_functions(test_file)
         # This is a known limitation - advanced obfuscation may not be detected
 
     def test_f_string_taint(self, tmp_path: Path) -> None:

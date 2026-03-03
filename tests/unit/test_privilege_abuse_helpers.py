@@ -9,23 +9,23 @@ def test_placeholder_detection():
     from owasp_agentic_scanner.rules.privilege_abuse import _is_placeholder_credential
 
     # These should be identified as placeholders
-    assert _is_placeholder_credential("YOUR_API_KEY_HERE") == True
-    assert _is_placeholder_credential("example_password") == True
-    assert _is_placeholder_credential("xxxxxxxxxxxxxxxx") == True
-    assert _is_placeholder_credential("12345678") == True
-    assert _is_placeholder_credential("password123") == True
-    assert _is_placeholder_credential("PLACEHOLDER_TOKEN") == True
-    assert _is_placeholder_credential("changeme") == True
-    assert _is_placeholder_credential("put_your_key_here") == True
-    assert _is_placeholder_credential("test") == True
-    assert _is_placeholder_credential("fake") == True
-    assert _is_placeholder_credential("xxx") == True
-    assert _is_placeholder_credential("qwertyqwerty") == True
-    assert _is_placeholder_credential("ALLUPPERCASEPLACEHOLDER") == True
+    assert _is_placeholder_credential("YOUR_API_KEY_HERE")
+    assert _is_placeholder_credential("example_password")
+    assert _is_placeholder_credential("xxxxxxxxxxxxxxxx")
+    assert _is_placeholder_credential("12345678")
+    assert _is_placeholder_credential("password123")
+    assert _is_placeholder_credential("PLACEHOLDER_TOKEN")
+    assert _is_placeholder_credential("changeme")
+    assert _is_placeholder_credential("put_your_key_here")
+    assert _is_placeholder_credential("test")
+    assert _is_placeholder_credential("fake")
+    assert _is_placeholder_credential("xxx")
+    assert _is_placeholder_credential("qwertyqwerty")
+    assert _is_placeholder_credential("ALLUPPERCASEPLACEHOLDER")
 
     # These should NOT be placeholders
-    assert _is_placeholder_credential("sk_live_51HqT2P...") == False
-    assert _is_placeholder_credential("ghp_1s3K4r3T...") == False
+    assert not _is_placeholder_credential("sk_live_51HqT2P...")
+    assert not _is_placeholder_credential("ghp_1s3K4r3T...")
 
 
 def test_entropy_calculation():
@@ -52,25 +52,25 @@ def test_sequential_numbers():
     from owasp_agentic_scanner.rules.privilege_abuse import _is_sequential_numbers
 
     # Sequential ascending
-    assert _is_sequential_numbers("12345678") == True
-    assert _is_sequential_numbers("23456789") == True
+    assert _is_sequential_numbers("12345678")
+    assert _is_sequential_numbers("23456789")
 
     # Sequential descending
-    assert _is_sequential_numbers("87654321") == True
+    assert _is_sequential_numbers("87654321")
 
     # Sequential with wrapping (9->0)
-    assert _is_sequential_numbers("89012345") == True
+    assert _is_sequential_numbers("89012345")
 
     # Not sequential - all same digit (edge case fix)
-    assert _is_sequential_numbers("00000000") == False
-    assert _is_sequential_numbers("11111111") == False
-    assert _is_sequential_numbers("99999999") == False
+    assert not _is_sequential_numbers("00000000")
+    assert not _is_sequential_numbers("11111111")
+    assert not _is_sequential_numbers("99999999")
 
     # Not sequential - other cases
-    assert _is_sequential_numbers("12346789") == False  # Skip
-    assert _is_sequential_numbers("abc12345") == False  # Not digits
-    assert _is_sequential_numbers("1234567") == False  # Too short
-    assert _is_sequential_numbers("13579246") == False  # Random
+    assert not _is_sequential_numbers("12346789")  # Skip
+    assert not _is_sequential_numbers("abc12345")  # Not digits
+    assert not _is_sequential_numbers("1234567")  # Too short
+    assert not _is_sequential_numbers("13579246")  # Random
 
 
 def test_real_credential_detection():
@@ -78,16 +78,16 @@ def test_real_credential_detection():
     from owasp_agentic_scanner.rules.privilege_abuse import _is_likely_real_credential
 
     # Real-looking credentials
-    assert _is_likely_real_credential("sk_live_51HqT2P2KCm") == True
-    assert _is_likely_real_credential("ghp_1s3K4r3Tm0nk3y") == True
-    assert _is_likely_real_credential("AIzaSyC-JlK7jkLm9nO0pQrS") == True
+    assert _is_likely_real_credential("sk_live_51HqT2P2KCm")
+    assert _is_likely_real_credential("ghp_1s3K4r3Tm0nk3y")
+    assert _is_likely_real_credential("AIzaSyC-JlK7jkLm9nO0pQrS")
 
     # Placeholders
-    assert _is_likely_real_credential("YOUR_API_KEY") == False
-    assert _is_likely_real_credential("example_password") == False
-    assert _is_likely_real_credential("xxxxxxxxxxxx") == False
-    assert _is_likely_real_credential("12345678") == False
-    assert _is_likely_real_credential("password") == False
+    assert not _is_likely_real_credential("YOUR_API_KEY")
+    assert not _is_likely_real_credential("example_password")
+    assert not _is_likely_real_credential("xxxxxxxxxxxx")
+    assert not _is_likely_real_credential("12345678")
+    assert not _is_likely_real_credential("password")
 
 
 def test_privilege_abuse_filters_placeholders():
