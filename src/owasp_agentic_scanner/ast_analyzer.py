@@ -271,8 +271,8 @@ class PythonASTAnalyzer(ast.NodeVisitor):
             return self.imports.get(base_name, base_name)
         elif isinstance(node, ast.Attribute):
             # Method call: obj.method()
-            parts = []
-            current = node
+            parts: list[str] = []
+            current: ast.expr = node
             while isinstance(current, ast.Attribute):
                 parts.append(current.attr)
                 current = current.value
@@ -300,8 +300,8 @@ class PythonASTAnalyzer(ast.NodeVisitor):
             return node.id
         elif isinstance(node, ast.Attribute):
             # Build the full attribute chain
-            parts = []
-            current = node
+            parts: list[str] = []
+            current: ast.expr = node
             while isinstance(current, ast.Attribute):
                 parts.append(current.attr)
                 current = current.value
@@ -361,9 +361,9 @@ class ASTSecurityChecker:
             return []
 
         analyzer = PythonASTAnalyzer(file_path)
-        taint_sources, dangerous_calls = analyzer.analyze(source)
+        _taint_sources, dangerous_calls = analyzer.analyze(source)
 
-        findings = []
+        findings: list[dict[str, Any]] = []
         for call_node, line_num, severity in dangerous_calls:
             func_name = analyzer._get_function_name(call_node.func)
 
@@ -378,7 +378,7 @@ class ASTSecurityChecker:
             # Determine if arguments are tainted
             is_tainted = analyzer._has_tainted_args(call_node)
 
-            finding = {
+            finding: dict[str, Any] = {
                 "function": func_name,
                 "line_number": line_num,
                 "line_content": line_content,
@@ -418,17 +418,20 @@ class ASTSecurityChecker:
         analyzer = PythonASTAnalyzer(file_path)
         _, dangerous_calls = analyzer.analyze(source)
 
-        findings = []
-        for call_node, line_num, severity in dangerous_calls:
+        findings: list[dict[str, Any]] = []
+        for call_node, line_num, _severity in dangerous_calls:
             func_name = analyzer._get_function_name(call_node.func)
 
             if func_name.startswith("subprocess."):
                 # Check for shell=True with tainted input
                 shell_true = False
                 for keyword in call_node.keywords:
-                    if keyword.arg == "shell" and isinstance(keyword.value, ast.Constant):
-                        if keyword.value.value is True:
-                            shell_true = True
+                    if (
+                        keyword.arg == "shell"
+                        and isinstance(keyword.value, ast.Constant)
+                        and keyword.value.value is True
+                    ):
+                        shell_true = True
 
                 is_tainted = analyzer._has_tainted_args(call_node)
 

@@ -62,9 +62,9 @@ class CircuitBreaker:
     failure_threshold: int = CIRCUIT_BREAKER_FAILURE_THRESHOLD
     timeout_seconds: int = CIRCUIT_BREAKER_TIMEOUT_SECONDS
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize circuit breaker state."""
-        self.failures: deque = deque(maxlen=self.failure_threshold)
+        self.failures: deque[datetime] = deque(maxlen=self.failure_threshold)
         self.state = "closed"  # closed, open, half_open
 
     def record_failure(self) -> None:
@@ -204,15 +204,12 @@ class OptimizedScanner:
         Returns:
             List of all findings
         """
-        findings = []
+        findings: list[Finding] = []
 
         # Determine which files to scan
-        if files_to_scan is not None:
-            # Git-diff mode: only scan specified files
-            files_iter = iter(files_to_scan)
-        else:
-            # Normal mode: discover all files
-            files_iter = self.discover_files(path)
+        files_iter: Iterator[Path] = (
+            iter(files_to_scan) if files_to_scan is not None else self.discover_files(path)
+        )
 
         if not parallel:
             # Sequential scanning
@@ -247,7 +244,9 @@ class OptimizedScanner:
         """Scan in parallel with batched task submission (legacy method)."""
         return self._scan_parallel_with_cache(self.discover_files(path), cache=None)
 
-    def _scan_parallel_with_cache(self, files_iter, cache=None) -> list[Finding]:
+    def _scan_parallel_with_cache(
+        self, files_iter: Iterator[Path], cache: "ScanCache | None" = None
+    ) -> list[Finding]:
         """Scan in parallel with batched task submission and cache support.
 
         Args:
@@ -325,12 +324,12 @@ class OptimizedScanner:
             findings: List of findings from the batch
             cache: Cache instance to update
         """
-        from filelock import FileLock, Timeout
+        from filelock import FileLock, Timeout  # type: ignore[import-not-found]
 
         from owasp_agentic_scanner.constants import CACHE_LOCK_TIMEOUT_SECONDS
 
         # Group findings by file
-        findings_by_file = {}
+        findings_by_file: dict[Path, list[Finding]] = {}
         for finding in findings:
             file_path = Path(finding.file_path)
             if file_path not in findings_by_file:
@@ -356,7 +355,9 @@ class OptimizedScanner:
                 extra={"batch_size": len(tasks), "findings_count": len(findings)},
             )
 
-    def _cancel_remaining_futures(self, future_to_task: dict[Future, ScanTask]) -> None:
+    def _cancel_remaining_futures(
+        self, future_to_task: dict["Future[tuple[Path, list[Finding]]]", ScanTask]
+    ) -> None:
         """Cancel all remaining futures that haven't completed.
 
         Args:
@@ -368,8 +369,8 @@ class OptimizedScanner:
 
     def _handle_task_result(
         self,
-        future: Future[tuple[Path, list[Finding]]],
-        future_to_task: dict[Future, ScanTask],
+        future: "Future[tuple[Path, list[Finding]]]",
+        future_to_task: dict["Future[tuple[Path, list[Finding]]]", ScanTask],
         findings: list[Finding],
         circuit_breaker: CircuitBreaker,
         max_findings: int,
@@ -426,7 +427,7 @@ class OptimizedScanner:
         Implements circuit breaker pattern and memory limits to prevent
         resource exhaustion during parallel scanning.
         """
-        findings = []
+        findings: list[Finding] = []
         circuit_breaker = CircuitBreaker(
             failure_threshold=CIRCUIT_BREAKER_FAILURE_THRESHOLD,
             timeout_seconds=CIRCUIT_BREAKER_TIMEOUT_SECONDS,
@@ -525,7 +526,4 @@ class FileFilter:
 
         # Skip lockfiles
         lockfiles = {"package-lock.json", "yarn.lock", "poetry.lock", "Pipfile.lock"}
-        if file_path.name in lockfiles:
-            return True
-
-        return False
+        return file_path.name in lockfiles

@@ -49,7 +49,11 @@ class BaselineFinding:
 
     @staticmethod
     def _compute_hash(
-        rule_id: str, file_path: str, line_number: int, message: str, line_content: str
+        rule_id: str,
+        file_path: str,
+        line_number: int,  # noqa: ARG004
+        message: str,
+        line_content: str,
     ) -> str:
         """Compute a stable hash for a finding."""
         import hashlib
@@ -142,7 +146,7 @@ class Baseline:
         self.metadata = {
             "created_at": datetime.datetime.now(datetime.UTC).isoformat(),
             "total_findings": len(findings),
-            "files_scanned": len(set(f.file_path for f in findings)),
+            "files_scanned": len({f.file_path for f in findings}),
         }
 
         data = {

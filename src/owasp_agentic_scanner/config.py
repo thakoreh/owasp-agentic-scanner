@@ -6,15 +6,12 @@ Allows users to configure scanner behavior via:
 - Environment variables
 """
 
+import contextlib
 import os
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-
-try:
-    import tomllib  # Python 3.11+
-except ImportError:
-    import tomli as tomllib  # type: ignore[import-not-found]
 
 
 @dataclass
@@ -193,10 +190,8 @@ class ScanConfig:
 
         # OWASP_SCAN_MAX_WORKERS=8
         if os.getenv("OWASP_SCAN_MAX_WORKERS"):
-            try:
+            with contextlib.suppress(ValueError):
                 self.max_workers = int(os.getenv("OWASP_SCAN_MAX_WORKERS", "0"))
-            except ValueError:
-                pass
 
         # OWASP_SCAN_MIN_SEVERITY=high
         if os.getenv("OWASP_SCAN_MIN_SEVERITY"):
@@ -243,7 +238,7 @@ class ScanConfig:
         """Save configuration to TOML file."""
         try:
             # We need tomli_w for writing
-            import tomli_w
+            import tomli_w  # type: ignore[import-not-found]
 
             with open(file_path, "wb") as f:
                 tomli_w.dump(self.to_dict(), f)

@@ -17,6 +17,7 @@ from owasp_agentic_scanner.constants import (
 from owasp_agentic_scanner.rules.base import (
     BaseRule,
     DetectionPattern,
+    Finding,
     Severity,
     pattern,
 )
@@ -51,14 +52,12 @@ def _has_placeholder_word(value: str) -> bool:
     value_lower = value.lower()
 
     for placeholder in placeholder_words:
-        if placeholder in value_lower:
-            # Check it's not just a substring of a longer identifier
-            if (
-                value_lower.startswith(placeholder)
-                or f"_{placeholder}" in value_lower
-                or placeholder.endswith("_")
-            ):
-                return True
+        if placeholder in value_lower and (
+            value_lower.startswith(placeholder)
+            or f"_{placeholder}" in value_lower
+            or placeholder.endswith("_")
+        ):
+            return True
     return False
 
 
@@ -130,10 +129,7 @@ def _is_placeholder_credential(value: str) -> bool:
         return True
 
     # Check for all same case (placeholders often all caps)
-    if value.isupper() and len(value) > MAX_UPPERCASE_PLACEHOLDER_LENGTH:
-        return True
-
-    return False
+    return value.isupper() and len(value) > MAX_UPPERCASE_PLACEHOLDER_LENGTH
 
 
 def _calculate_entropy(value: str) -> float:
@@ -197,10 +193,8 @@ def _is_likely_real_credential(value: str) -> bool:
 
     # Check entropy - real credentials have higher entropy
     entropy = _calculate_entropy(value)
-    if entropy < MIN_ENTROPY_THRESHOLD:  # Low entropy suggests pattern or repetition
-        return False
-
-    return True
+    # Low entropy suggests pattern or repetition
+    return entropy >= MIN_ENTROPY_THRESHOLD
 
 
 class PrivilegeAbuseRule(BaseRule):
@@ -281,7 +275,7 @@ class PrivilegeAbuseRule(BaseRule):
             ),
         ]
 
-    def scan_file(self, file_path: Path) -> list:
+    def scan_file(self, file_path: Path) -> list[Finding]:
         """Override scan_file to add credential validation.
 
         This method adds post-processing to filter out placeholder credentials

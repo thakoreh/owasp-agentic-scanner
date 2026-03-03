@@ -259,7 +259,7 @@ def scan(
             cache_path_obj = Path(cache_dir).resolve(strict=False)
         except (OSError, ValueError) as e:
             console.print(f"[red]Error: Invalid cache directory: {e}[/red]")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
 
         # Explicitly block dangerous directories FIRST (resolve them too)
         dangerous_paths = [
@@ -283,7 +283,7 @@ def scan(
         allowed_bases = [
             Path.home(),  # User home directory
             Path.cwd(),  # Current working directory
-            Path("/tmp").resolve(strict=False),  # Temp directory
+            Path("/tmp").resolve(strict=False),  # noqa: S108  # nosec B108 - Temp directory
             Path(tempfile.gettempdir()).resolve(
                 strict=False
             ),  # System temp (may differ from /tmp on macOS)
@@ -405,8 +405,8 @@ def scan(
                 findings = scanner.scan(scan_path, parallel=parallel)
             # Manual filtering if needed
             if git_diff and files_to_scan:
-                files_to_scan_set = set(files_to_scan)
-                findings = [f for f in findings if f.file_path in files_to_scan_set]
+                files_to_scan_strs = {str(p) for p in files_to_scan}
+                findings = [f for f in findings if str(f.file_path) in files_to_scan_strs]
 
     if not use_optimized:
         # Use original scanner
@@ -422,8 +422,8 @@ def scan(
 
         # Manual filtering for old scanner
         if git_diff and files_to_scan:
-            files_to_scan_set = set(files_to_scan)
-            findings = [f for f in findings if f.file_path in files_to_scan_set]
+            files_to_scan_strs = {str(p) for p in files_to_scan}
+            findings = [f for f in findings if str(f.file_path) in files_to_scan_strs]
 
     # Apply baseline filtering if specified
     baseline = None
@@ -431,13 +431,16 @@ def scan(
         try:
             from owasp_agentic_scanner.baseline import Baseline
 
-            baseline = Baseline(Path(baseline_file))
-            if baseline.baseline_file.exists():
-                baseline.load()
-                new_findings, baselined_count = baseline.filter_new_findings(findings)
+            baseline_path = Path(baseline_file)
+            baseline = Baseline(baseline_path)
+            if baseline_path.exists():
+                baseline.load(baseline_path)
+                new_findings, baselined_findings = baseline.filter_new_findings(findings)
                 findings = new_findings
-                if format.lower() == "console" and baselined_count > 0:
-                    console.print(f"[dim]Filtered {baselined_count} baselined findings[/dim]")
+                if format.lower() == "console" and len(baselined_findings) > 0:
+                    console.print(
+                        f"[dim]Filtered {len(baselined_findings)} baselined findings[/dim]"
+                    )
         except ImportError:
             logger.warning("Baseline module not available")
         except Exception as e:
@@ -448,9 +451,9 @@ def scan(
         try:
             from owasp_agentic_scanner.baseline import Baseline
 
-            new_baseline = Baseline(Path(create_baseline))
-            new_baseline.create_from_findings(findings)
-            new_baseline.save()
+            new_baseline_path = Path(create_baseline)
+            new_baseline = Baseline()
+            new_baseline.save(new_baseline_path, findings)
             if format.lower() == "console":
                 console.print(
                     f"[green]Baseline created: {create_baseline} ({len(findings)} findings)[/green]"

@@ -4,7 +4,7 @@ import ast
 from pathlib import Path
 
 from owasp_agentic_scanner.ast_analyzer import ASTSecurityChecker
-from owasp_agentic_scanner.rules.base import Finding, Severity
+from owasp_agentic_scanner.rules.base import DetectionPattern, Finding, Severity
 from owasp_agentic_scanner.rules.base_ast import HybridRule
 from owasp_agentic_scanner.rules.code_execution import CodeExecutionRule
 
@@ -32,7 +32,7 @@ class CodeExecutionASTRule(HybridRule):
         self._pattern_rule = CodeExecutionRule()
         super().__init__()
 
-    def _get_patterns(self) -> list:
+    def _get_patterns(self) -> list[DetectionPattern]:
         """Get patterns for non-Python files."""
         if hasattr(self, "_pattern_rule"):
             return self._pattern_rule._get_patterns()
@@ -40,7 +40,7 @@ class CodeExecutionASTRule(HybridRule):
 
     def _scan_python_file(self, file_path: Path) -> list[Finding]:
         """Scan Python file using AST analysis."""
-        findings = []
+        findings: list[Finding] = []
 
         # Skip test files (different severity/context)
         if self._is_test_file(file_path):
@@ -165,7 +165,7 @@ class CodeExecutionASTRule(HybridRule):
 
     def _detect_llm_code_execution(self, file_path: Path) -> list[Finding]:
         """Detect patterns where LLM-generated code is executed."""
-        findings = []
+        findings: list[Finding] = []
 
         try:
             source = file_path.read_text(encoding="utf-8", errors="strict")
@@ -208,8 +208,8 @@ class CodeExecutionASTRule(HybridRule):
         if isinstance(node, ast.Name):
             return node.id
         elif isinstance(node, ast.Attribute):
-            parts = []
-            current = node
+            parts: list[str] = []
+            current: ast.expr = node
             while isinstance(current, ast.Attribute):
                 parts.append(current.attr)
                 current = current.value

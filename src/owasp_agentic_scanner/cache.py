@@ -4,6 +4,7 @@ This enables scanning only changed files, making the scanner much faster
 for repeated runs and CI/CD usage.
 """
 
+import contextlib
 import fcntl
 import hashlib
 import json
@@ -32,11 +33,8 @@ class FileLock:
 
         if sys.platform != "win32":
             # Use fcntl on Unix-like systems
-            try:
+            with contextlib.suppress(OSError, AttributeError):
                 fcntl.flock(self.lock_fd.fileno(), fcntl.LOCK_EX)
-            except (OSError, AttributeError):
-                # fcntl not available or lock failed
-                pass
         # Note: Windows locking would require msvcrt, skipping for now
 
         return self
@@ -45,10 +43,8 @@ class FileLock:
         """Release lock."""
         if self.lock_fd:
             if sys.platform != "win32":
-                try:
+                with contextlib.suppress(OSError, AttributeError):
                     fcntl.flock(self.lock_fd.fileno(), fcntl.LOCK_UN)
-                except (OSError, AttributeError):
-                    pass
             self.lock_fd.close()
             self.lock_fd = None
 
@@ -116,9 +112,8 @@ class ScanCache:
         """Save cache to disk with file locking."""
         try:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
-            with FileLock(self.lock_file):
-                with open(self.cache_file, "w", encoding="utf-8") as f:
-                    json.dump(self.cache_data, f, indent=2)
+            with FileLock(self.lock_file), open(self.cache_file, "w", encoding="utf-8") as f:
+                json.dump(self.cache_data, f, indent=2)
             logger.debug(f"Saved cache with {len(self.cache_data)} entries")
         except OSError as e:
             logger.warning(f"Failed to save cache: {e}")
@@ -168,7 +163,7 @@ class ScanCache:
 
         return cached_entry.get("hash") != current_hash
 
-    def update(self, file_path: Path, findings: list) -> None:
+    def update(self, file_path: Path, findings: list[Any]) -> None:
         """Update cache with new scan results.
 
         Args:
@@ -253,8 +248,8 @@ class ScanCache:
         Args:
             project_root: Root directory of the project
         """
-        deleted_keys = []
-        for file_key in self.cache_data.keys():
+        deleted_keys: list[str] = []
+        for file_key in self.cache_data:
             file_path = Path(file_key)
             if not file_path.exists() or not file_path.is_relative_to(project_root):
                 deleted_keys.append(file_key)
