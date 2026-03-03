@@ -40,7 +40,7 @@ class TestScanCommand:
         test_file.write_text("eval(input())")
         output_file = tmp_path / "results.json"
 
-        result = runner.invoke(
+        runner.invoke(
             app, ["scan", str(test_file), "--format", "json", "--output", str(output_file)]
         )
 
@@ -55,7 +55,7 @@ class TestScanCommand:
         test_file.write_text("eval(input())")
         output_file = tmp_path / "results.sarif"
 
-        result = runner.invoke(
+        runner.invoke(
             app, ["scan", str(test_file), "--format", "sarif", "--output", str(output_file)]
         )
 
@@ -532,7 +532,7 @@ class TestCLIEdgeCases:
         assert result.exit_code == 0
 
         # Temp directory - should work
-        cache_in_tmp = Path("/tmp") / ".test_cache"
+        cache_in_tmp = Path("/tmp") / ".test_cache"  # noqa: S108
         result = runner.invoke(
             app, ["scan", str(tmp_path), "--cache", "--cache-dir", str(cache_in_tmp)]
         )

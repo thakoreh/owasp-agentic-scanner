@@ -119,7 +119,7 @@ class TestOptimizedScanner:
 
         rules = [CodeExecutionRule(), GoalHijackRule()]
         scanner = OptimizedScanner(rules=rules)
-        findings = scanner.scan(tmp_path, parallel=False)
+        scanner.scan(tmp_path, parallel=False)
 
         # Should work with multiple rules
         assert scanner.rules == rules
@@ -206,7 +206,7 @@ class TestOptimizedScanner:
         scanner = OptimizedScanner(rules=[rule])
 
         # First scan
-        findings1 = scanner.scan(tmp_path, parallel=False, cache=cache)
+        scanner.scan(tmp_path, parallel=False, cache=cache)
         cache.save()
 
         # Verify cache was populated
